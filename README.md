@@ -1,4 +1,4 @@
-# sample project to implement semantic versioning in gitlabs pipeline 
+# sample project to implement semantic versioning in CI pipeline 
  
 ### features
 
