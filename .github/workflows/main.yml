@@ -17,11 +17,17 @@ jobs:
   job1:
     runs-on: self-hosted
     steps:
-    - name: Get Branch
-      run: |
-        branch=$(git branch -r --contains ${{ github.ref }} --format "%(refname:lstrip=3)")
-        echo ::set-env name=BRANCH::$branch
-    - run: echo ${{ env.BRANCH }}
+      - uses: actions/checkout@v4 # Checks out your repository
+
+      - name: Get branch name
+        id: vars
+        run: |
+          # Finds remote branches containing the tag, strips 'origin/', and takes the first match
+          BRANCH=$(git branch -r --contains ${{ github.ref }} | head -n 1 | sed 's/.*origin\///')
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Use branch name
+        run: echo "Running on branch ${{ steps.vars.outputs.branch }}"
 
   # check-tag:
   #   runs-on: ubuntu-24.04
