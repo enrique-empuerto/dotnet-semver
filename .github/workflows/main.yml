@@ -53,7 +53,7 @@ jobs:
       - name: install verlite for semantic versioning
         run: |
           dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+          export PATH="$PATH:/home/dev1/.dotnet/tools"
           verlite --auto-fetch
 
       - name: Build
