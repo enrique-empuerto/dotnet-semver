@@ -29,7 +29,8 @@ jobs:
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
-      with: dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
+      with: 
+        dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
 
     - name: Restore dependencies
       run: dotnet restore # Restores NuGet packages
