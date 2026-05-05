@@ -71,7 +71,7 @@ jobs:
       - name: Publish Application
         run: dotnet publish -c Release -o ./publish    
       - name: Upload Artifact
-            uses: actions/upload-artifact@v4
-            with:
-              name: ${{ env.APP_NAME }}-publish
-              path: ./publish       
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-publish
+          path: ./publish       
