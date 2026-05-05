@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+  <Deterministic>true</Deterministic>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DotNet.ReproducibleBuilds" Version="2.0.2" PrivateAssets="All"/>
+    <PackageReference Include="Verlite.MsBuild" Version="2.6.0" PrivateAssets="All" />
+  </ItemGroup>   
+</Project>

@@ -1,0 +1,87 @@
+image: mcr.microsoft.com/dotnet/sdk:10.0
+
+# prevent building twice on tags and branches
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+
+# ### Define variables
+#
+variables:
+  OBJECTS_DIRECTORY: 'obj'
+  NUGET_PACKAGES_DIRECTORY: '.nuget'
+  SOURCE_CODE_PATH: '*/*/'
+
+cache:
+  # Per-stage and per-branch caching.
+  key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
+  paths:
+    # Specify three paths that should be cached:
+    #
+    # 1) Main JSON file holding information about package dependency tree, packages versions,
+    # frameworks etc. It also holds information where to the dependencies were restored.
+    - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/project.assets.json'
+    # 2) Other NuGet and MSBuild related files. Also needed.
+    - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/*.csproj.nuget.*'
+    # 3) Path to the directory where restored dependencies are kept.
+    - '$NUGET_PACKAGES_DIRECTORY'
+  #
+  # 'pull-push' policy means that latest cache will be downloaded (if it exists)
+  # before executing the job, and a newer version will be uploaded afterwards.
+  # Such a setting saves time when there are no changes in referenced third-party
+  # packages.
+  #
+  # For example, if you run a pipeline with changes in your code,
+  # but with no changes within third-party packages which your project is using,
+  # then project restore will happen quickly as all required dependencies
+  # will already be there — unzipped from cache.
+
+  # 'pull-push' policy is the default cache policy, you do not have to specify it explicitly.
+  policy: pull-push
+
+# ### Restore project dependencies
+#
+# NuGet packages by default are restored to '.nuget/packages' directory
+# in the user's home directory. That directory is out of scope of GitLab caching.
+#
+# To get around this, a custom path can be specified using the '--packages <PATH>' option
+# for 'dotnet restore' command. In this example, a temporary directory is created
+# in the root of project repository, so its content can be cached.
+#
+# Learn more about GitLab cache: https://docs.gitlab.com/ee/ci/caching/index.html
+before_script:
+  - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
+
+build:
+  stage: build
+  # ### Build all projects discovered from solution file.
+  #
+  # Note: this will fail if you have any projects in your solution that are not
+  # .NET Core-based projects (e.g. WCF service), which is based on .NET Framework,
+  # not .NET Core. In this scenario, you will need to use a separate solution
+  # file that only has .NET Core-based projects (`dotnet build MyApp.core.sln`),
+  # or build every .NET Core-based project by explicitly specifying a relative
+  # path to the directory where it is located (e.g. 'dotnet build ./src/ConsoleApp').
+  # Only one project path can be passed as a parameter to 'dotnet build' command.
+  script:
+    - 'dotnet tool install --global Verlite.CLI --version "2.6.0"'
+    - 'export PATH="$PATH:/root/.dotnet/tools"'
+    - 'verlite --auto-fetch'  
+    - 'dotnet build --no-restore'
+
+test:
+  stage: test
+  script:
+    - 'dotnet test --test-adapter-path:. --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"'
+  artifacts:
+    when: always
+    paths:
+      - ./**/*test-result.xml
+    reports:
+      junit:
+        - ./**/*test-result.xml        
+
+# deploy:
+#   stage: deploy
+#   script: echo "Define your deployment script!"
+#   environment: production
