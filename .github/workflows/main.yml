@@ -17,6 +17,8 @@ env:
 jobs:
   check-branch:
     runs-on: self-hosted
+    outputs:
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +38,7 @@ jobs:
   build-and-test:
     runs-on: self-hosted
     needs: check-branch
-    if: needs.check-branch.vars.outputs.vars.branch == 'main'    
+    if: needs.check-branch.output.branch == 'main'    
     steps:  
       - name: Setup .NET
         uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
