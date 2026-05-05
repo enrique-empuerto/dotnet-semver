@@ -15,7 +15,7 @@ env:
   VERLITE_VERSION: '"2.6.0"'
 
 jobs:
-  job1:
+  check-branch:
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -32,6 +32,31 @@ jobs:
 
       - name: Use branch name
         run: echo "Running on branch ${{ steps.vars.outputs.branch }}"
+
+  build-and-test:
+    runs-on: self-hosted
+    needs: check-branch
+    if: needs.check-branch.vars.outputs.vars.branch == 'main'    
+    steps:  
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
+        with: 
+          dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
+
+      - name: Restore dependencies
+        run: dotnet restore # Restores NuGet packages
+
+      - name: install verlite for semantic versioning
+        run: |
+          dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+          verlite --auto-fetch
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release # Compiles the app
+
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal        
 
   # check-tag:
   #   runs-on: ubuntu-24.04
@@ -52,22 +77,4 @@ jobs:
   #   steps:
   #   - uses: actions/checkout@v4 # Checks out your repository
 
-  #   - name: Setup .NET
-  #     uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
-  #     with: 
-  #       dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
 
-  #   - name: Restore dependencies
-  #     run: dotnet restore # Restores NuGet packages
-
-  #   - name: install verlite for semantic versioning
-  #     run: |
-  #       dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}
-  #       echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-  #       verlite --auto-fetch
-
-  #   - name: Build
-  #     run: dotnet build --no-restore --configuration Release # Compiles the app
-
-  #   - name: Test
-  #     run: dotnet test --no-build --configuration Release --verbosity normal
