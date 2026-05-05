@@ -36,7 +36,7 @@ jobs:
       - name: Use branch name
         run: echo "Running on branch ${{ steps.vars.outputs.branch }}"
 
-  build-and-test:
+  build-and-test-and-publish:
     runs-on: self-hosted
     needs: check-branch
     if: needs.check-branch.outputs.branch == 'main'    
@@ -63,15 +63,12 @@ jobs:
       - name: Test
         run: dotnet test --no-build --configuration Release --verbosity normal        
 
-  publish:
-    runs-on: self-hosted
-    needs: build-and-test
-    if: needs.check-branch.outputs.branch == 'main' 
-    steps:
       - name: Publish Application
         run: dotnet publish -c Release -o ./publish    
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.APP_NAME }}-publish
-          path: ./publish       
+          path: ./publish             
+
