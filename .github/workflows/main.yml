@@ -1,4 +1,4 @@
-name: .NET Core CI
+name: .NET Core 10 CI
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages  
   NUGET_HTTP_CACHE_PATH: ${{ github.workspace }}/.nuget/http-cache    
   DOTNET_VERSION: '10.0.x'
