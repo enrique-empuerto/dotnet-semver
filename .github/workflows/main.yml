@@ -31,9 +31,9 @@ jobs:
 
     - name: install verlite for semantic versioning
       run: |
-        'dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}'
-        'echo "$HOME/.dotnet/tools" >> $GITHUB_PATH'
-        'verlite --auto-fetch'  
+        dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+        verlite --auto-fetch
 
     - name: Build
       run: dotnet build --no-restore --configuration Release # Compiles the app
