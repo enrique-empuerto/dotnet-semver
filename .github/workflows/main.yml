@@ -18,7 +18,10 @@ jobs:
   job1:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4 # Checks out your repository
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get branch name
         id: vars
