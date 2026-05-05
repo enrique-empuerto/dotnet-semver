@@ -22,12 +22,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4 # Checks out your repository
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
-      with: |
+    - name: display variables
+      run: |
         echo github.event.ref
         echo github.event.ref_name
-        dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
+      with: dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
 
     - name: Restore dependencies
       run: dotnet restore # Restores NuGet packages
