@@ -14,41 +14,50 @@ env:
   VERLITE_VERSION: '"2.6.0"'
 
 jobs:
-  check-tag:
-    runs-on: ubuntu-24.04
-    outputs:
-      is_version: ${{ steps.check.outputs.is_version }}
+  job1:
+    runs-on: self-hosted
     steps:
-      - id: check
-        run: |
-          if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "is_version=true" >> $GITHUB_OUTPUT
-          fi
-
-  build:
-    runs-on: ubuntu-24.04
-    needs: check-tag
-    if: needs.check-tag.outputs.is_version == 'true'
-
-    steps:
-    - uses: actions/checkout@v4 # Checks out your repository
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
-      with: 
-        dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
-
-    - name: Restore dependencies
-      run: dotnet restore # Restores NuGet packages
-
-    - name: install verlite for semantic versioning
+    - name: Get Branch
       run: |
-        dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}
-        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-        verlite --auto-fetch
+        branch=$(git branch -r --contains ${{ github.ref }} --format "%(refname:lstrip=3)")
+        echo ::set-env name=BRANCH::$branch
+    - run: echo ${{ env.BRANCH }}
 
-    - name: Build
-      run: dotnet build --no-restore --configuration Release # Compiles the app
+  # check-tag:
+  #   runs-on: ubuntu-24.04
+  #   outputs:
+  #     is_version: ${{ steps.check.outputs.is_version }}
+  #   steps:
+  #     - id: check
+  #       run: |
+  #         if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  #           echo "is_version=true" >> $GITHUB_OUTPUT
+  #         fi
 
-    - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
+  # build:
+  #   runs-on: ubuntu-24.04
+  #   needs: check-tag
+  #   if: needs.check-tag.outputs.is_version == 'true'
+
+  #   steps:
+  #   - uses: actions/checkout@v4 # Checks out your repository
+
+  #   - name: Setup .NET
+  #     uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
+  #     with: 
+  #       dotnet-version: ${{ env.DOTNET_VERSION }} # Specify your .NET version
+
+  #   - name: Restore dependencies
+  #     run: dotnet restore # Restores NuGet packages
+
+  #   - name: install verlite for semantic versioning
+  #     run: |
+  #       dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}
+  #       echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+  #       verlite --auto-fetch
+
+  #   - name: Build
+  #     run: dotnet build --no-restore --configuration Release # Compiles the app
+
+  #   - name: Test
+  #     run: dotnet test --no-build --configuration Release --verbosity normal
