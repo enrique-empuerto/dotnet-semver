@@ -30,9 +30,10 @@ jobs:
       run: dotnet restore # Restores NuGet packages
 
     - name: install verlite for semantic versioning
-      run: 'dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}'
-      run: 'export PATH="$PATH:/root/.dotnet/tools"'
-      run: 'verlite --auto-fetch'  
+      run: |
+        'dotnet tool install --global Verlite.CLI --version ${{ env.VERLITE_VERSION }}'
+        'export PATH="$PATH:/root/.dotnet/tools"'
+        'verlite --auto-fetch'  
 
     - name: Build
       run: dotnet build --no-restore --configuration Release # Compiles the app
