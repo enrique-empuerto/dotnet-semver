@@ -1,0 +1,28 @@
+name: .NET Core CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4 # Checks out your repository
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
+      with:
+        dotnet-version: '10.0.x' # Specify your .NET version
+
+    - name: Restore dependencies
+      run: dotnet restore # Restores NuGet packages
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release # Compiles the app
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal # Runs unit tests
