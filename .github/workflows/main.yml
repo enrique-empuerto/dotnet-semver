@@ -2,8 +2,7 @@ name: .NET Core CI
 
 on:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+' 
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -15,18 +14,23 @@ env:
   VERLITE_VERSION: '"2.6.0"'
 
 jobs:
+  check-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      is_version: ${{ steps.check.outputs.is_version }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "is_version=true" >> $GITHUB_OUTPUT
+          fi
+
   build:
-    runs-on: ubuntu-24.04
-    #if: github.event.base_ref == 'main'
+    needs: check-tag
+    if: needs.check-tag.outputs.is_version == 'true'
 
     steps:
     - uses: actions/checkout@v4 # Checks out your repository
-
-    - name: display variables
-      run: |
-        echo "The current branch is ${{ github.event.ref }}"
-        echo "The current branch is ${{ github.ref_name }}"
-        echo "The current branch is ${{ github.event.base_ref }}"
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
