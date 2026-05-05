@@ -24,8 +24,8 @@ jobs:
 
     - name: display variables
       run: |
-        echo github.event.ref
-        echo github.event.ref_name
+        echo "The current branch is ${{ github.event.ref }}"
+        echo "The current branch is ${{ github.ref_name }}"
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4 # Sets up the .NET SDK
